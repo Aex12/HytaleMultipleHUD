@@ -34,6 +34,7 @@ public class CustomTickingSystem extends EntityTickingSystem<EntityStore> {
         assert player != null;
         MultipleHUD.getInstance().setCustomHud(player, playerRef, "Hud1", new TestUIHUD(playerRef, "Buuz135_MHUD_ChunkEntry.ui"));
         MultipleHUD.getInstance().setCustomHud(player, playerRef, "Hud2", new TestUIHUD(playerRef, "Buuz135_MHUD_PartyMemberListEntry.ui"));
+        //MultipleHUD.getInstance().hideCustomHud(player, playerRef, "Hud2");
     }
 
     @NullableDecl

@@ -31,14 +31,15 @@ public class MultipleHUD extends JavaPlugin {
     @Override
     protected void setup() {
         super.setup();
-        //this.getEntityStoreRegistry().registerSystem(new CustomTickingSystem());
+        this.getEntityStoreRegistry().registerSystem(new CustomTickingSystem());
     }
 
     public void setCustomHud(Player player, PlayerRef playerRef, String hudIdentifier, CustomUIHud customHud) {
         var currentCustomHud = player.getHudManager().getCustomHud();
         if (currentCustomHud instanceof MultipleCustomUIHud multipleCustomUIHud) {
             multipleCustomUIHud.getCustomHuds().put(hudIdentifier, customHud);
-            player.getHudManager().setCustomHud(playerRef, new MultipleCustomUIHud(playerRef, multipleCustomUIHud.getCustomHuds()));
+            player.getHudManager().setCustomHud(playerRef, multipleCustomUIHud);
+            multipleCustomUIHud.show();
         } else {
             var huds = new HashMap<String, CustomUIHud>();
             huds.put(hudIdentifier, customHud);
@@ -47,4 +48,12 @@ public class MultipleHUD extends JavaPlugin {
         }
     }
 
+    public void hideCustomHud(Player player, PlayerRef playerRef, String hudIdentifier) {
+        var currentCustomHud = player.getHudManager().getCustomHud();
+        if (currentCustomHud instanceof MultipleCustomUIHud multipleCustomUIHud) {
+            multipleCustomUIHud.getCustomHuds().remove(hudIdentifier);
+            player.getHudManager().setCustomHud(playerRef, multipleCustomUIHud);
+            multipleCustomUIHud.show();
+        }
+    }
 }
