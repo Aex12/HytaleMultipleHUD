@@ -63,7 +63,8 @@ public class MultipleCustomUIHud extends CustomUIHud {
     }
 
     // key is the id as provided by mod, value is normalized id to be compatible with hud.
-    private final HashMap<String, String> shownHuds = new HashMap<>();
+    private final HashMap<String, String> normalizedIds = new HashMap<>();
+    private final HashMap<String, CustomUIHud> customHuds = new HashMap<>();
 
     public MultipleCustomUIHud(@NonNullDecl PlayerRef playerRef) {
         super(playerRef);
@@ -72,18 +73,33 @@ public class MultipleCustomUIHud extends CustomUIHud {
     @Override
     protected void build(@NonNullDecl UICommandBuilder uiCommandBuilder) {
         uiCommandBuilder.append("HUD/MultipleHUD.ui");
-        // individual hud renders will be handled by the showHud method
+        // individual hud renders will be handled by the `add` method.
+        // full re-renders can be triggered by the `show` method.
+    }
+
+    @Override
+    public void show() {
+        UICommandBuilder commandBuilder = new UICommandBuilder();
+        this.build(commandBuilder);
+        for (String identifier : customHuds.keySet()) {
+            String normalizedId = normalizedIds.get(identifier);
+            CustomUIHud hud = customHuds.get(identifier);
+            commandBuilder.appendInline("#MultipleHUD", "Group #" + identifier + " {}");
+            buildHud(commandBuilder, normalizedId, hud);
+        }
+        this.update(true, commandBuilder);
     }
 
     public void add (String identifier, CustomUIHud hud) {
         UICommandBuilder commandBuilder = new UICommandBuilder();
-        String normalizedId = shownHuds.get(identifier);
-        boolean shownBefore = normalizedId != null;
-        if (shownBefore) {
+        String normalizedId = normalizedIds.get(identifier);
+        CustomUIHud existingHud = customHuds.get(identifier);
+        boolean shownBefore = existingHud != null && normalizedId != null;
+        if (shownBefore || existingHud != hud) {
             commandBuilder.clear("#MultipleHUD #" + normalizedId);
         } else {
             normalizedId = identifier.replaceAll("[^a-zA-Z0-9]", "");
-            shownHuds.put(identifier, normalizedId);
+            normalizedIds.put(identifier, normalizedId);
             commandBuilder.appendInline("#MultipleHUD", "Group #" + normalizedId + " {}");
         }
         buildHud(commandBuilder, normalizedId, hud);
@@ -91,10 +107,11 @@ public class MultipleCustomUIHud extends CustomUIHud {
     }
 
     public void remove (String identifier) {
-        String normalizedId = shownHuds.get(identifier);
+        String normalizedId = normalizedIds.get(identifier);
         boolean shownBefore = normalizedId != null;
         if (!shownBefore) return;
-        shownHuds.remove(identifier);
+        normalizedIds.remove(identifier);
+        customHuds.remove(identifier);
         UICommandBuilder commandBuilder = new UICommandBuilder();
         commandBuilder.remove("#MultipleHUD #" + normalizedId);
         update(false, commandBuilder);
