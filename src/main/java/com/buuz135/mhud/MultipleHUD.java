@@ -26,6 +26,7 @@ public class MultipleHUD extends JavaPlugin {
     public MultipleHUD(@Nonnull JavaPluginInit init) {
         super(init);
         instance = this;
+        getLogger().atInfo().log(instance.toString());
     }
 
     @Override
@@ -50,10 +51,16 @@ public class MultipleHUD extends JavaPlugin {
 
     public void hideCustomHud(Player player, PlayerRef playerRef, String hudIdentifier) {
         var currentCustomHud = player.getHudManager().getCustomHud();
+
         if (currentCustomHud instanceof MultipleCustomUIHud multipleCustomUIHud) {
             multipleCustomUIHud.getCustomHuds().remove(hudIdentifier);
-            player.getHudManager().setCustomHud(playerRef, multipleCustomUIHud);
-            multipleCustomUIHud.show();
+
+            if (multipleCustomUIHud.getCustomHuds().isEmpty()) {
+                player.getHudManager().setCustomHud(playerRef, new EmptyHUD(playerRef));
+            } else {
+                player.getHudManager().setCustomHud(playerRef, multipleCustomUIHud);
+                multipleCustomUIHud.show();
+            }
         }
     }
 }
