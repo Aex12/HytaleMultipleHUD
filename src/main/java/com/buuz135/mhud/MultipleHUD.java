@@ -49,14 +49,7 @@ public class MultipleHUD extends JavaPlugin {
         var currentCustomHud = player.getHudManager().getCustomHud();
 
         if (currentCustomHud instanceof MultipleCustomUIHud multipleCustomUIHud) {
-            multipleCustomUIHud.getCustomHuds().remove(hudIdentifier);
-
-            if (multipleCustomUIHud.getCustomHuds().isEmpty()) {
-                player.getHudManager().setCustomHud(playerRef, new EmptyHUD(playerRef));
-            } else {
-                player.getHudManager().setCustomHud(playerRef, multipleCustomUIHud);
-                multipleCustomUIHud.show();
-            }
+            multipleCustomUIHud.remove(hudIdentifier);
         }
     }
 }
